@@ -1,0 +1,81 @@
+import pygame
+import random
+
+
+pygame.init()
+
+width, height = 640, 480
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Snake Game")
+
+BLACK = (0, 0, 0)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+
+snake_pos = [[100, 50], [90, 50], [80, 50]]
+snake_body = pygame.Surface((10, 10))
+snake_body.fill(GREEN)
+
+food_pos = [random.randint(1, 63) * 10, random.randint(1, 47) * 10]
+food = pygame.Surface((10, 10))
+food.fill(RED)
+
+direction = 'RIGHT'
+change_to = direction
+
+score = 0
+fps = 15
+
+clock = pygame.time.Clock()
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and direction != 'DOWN':
+                change_to = 'UP'
+            elif event.key == pygame.K_DOWN and direction != 'UP':
+                change_to = 'DOWN'
+            elif event.key == pygame.K_LEFT and direction != 'RIGHT':
+                change_to = 'LEFT'
+            elif event.key == pygame.K_RIGHT and direction != 'LEFT':
+                change_to = 'RIGHT'
+
+    direction = change_to
+
+    if direction == 'UP':
+        snake_pos[0][1] -= 10
+    elif direction == 'DOWN':
+        snake_pos[0][1] += 10
+    elif direction == 'LEFT':
+        snake_pos[0][0] -= 10
+    elif direction == 'RIGHT':
+        snake_pos[0][0] += 10
+
+    if snake_pos[0] == food_pos:
+        score += 1
+        food_pos = [random.randint(1, 63) * 10, random.randint(1, 47) * 10]
+        snake_pos.append([0, 0])
+
+    if snake_pos[0][0] < 0 or snake_pos[0][0] >= width or snake_pos[0][1] < 0 or snake_pos[0][1] >= height:
+        running = False
+    for block in snake_pos[1:]:
+        if snake_pos[0] == block:
+            running = False
+
+    for i in range(len(snake_pos) - 1, 0, -1):
+        snake_pos[i] = list(snake_pos[i - 1])
+
+    screen.fill(BLACK)
+
+    for pos in snake_pos:
+        screen.blit(snake_body, pos)
+    screen.blit(food, food_pos)
+
+    pygame.display.update()
+
+    clock.tick(fps)
+
+pygame.quit()
+print("Score:", score)
